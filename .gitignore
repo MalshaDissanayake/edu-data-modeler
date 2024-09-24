@@ -1,0 +1,19 @@
+# Ignore the .env file containing sensitive credentials
+.env
+
+# Ignore any PostgreSQL data directory (volume mounted)
+data/
+
+# Ignore Python cache files and directories
+__pycache__/
+*.pyc
+
+# Ignore Docker-related log files (if any)
+*.log
+
+# Ignore Docker Compose override files (if you use them)
+docker-compose.override.yml
+
+# Ignore temporary Docker files (if any)
+*.tmp
+
