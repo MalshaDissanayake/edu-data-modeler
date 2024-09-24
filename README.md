@@ -90,7 +90,7 @@ To run this project locally, you'll need the following:
      The `models.py` file contains the SQLAlchemy ORM definitions for the database. This script can automatically create tables and simulate data.
      Run the following command within the Poetry environment to create the tables using ORM:
      ```bash
-     python models.py
+     poetry run python models.py
      ```
      This is the recommended method, as it can also be integrated with the data simulation script.
 
@@ -107,7 +107,7 @@ To run this project locally, you'll need the following:
 
    To simulate data, run the following command within the Poetry environment:
    ```bash
-   python simulate_data.py
+   poetry run python simulate_data.py
    ```
    This script will populate the database with data for users, courses, quizzes, questions, options, and results.
 
