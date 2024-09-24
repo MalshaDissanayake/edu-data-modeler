@@ -1,7 +1,7 @@
-# Education App Data Model
+ # Education App Data Model
 
 ## Project Overview
-This project involves creating and simulating a data model for an education app that handles users, courses, quizzes, questions, and results. The model is designed and implemented in PostgreSQL using an ER diagram. Additionally, a Python ORM script will be used to generate realistic, normalized data for testing the model. The PostgreSQL environment is Dockerized to ensure easy setup and demonstration.
+This project involves creating and simulating a data model for an education app that handles users, courses, quizzes, questions, and results. The model is designed and implemented in PostgreSQL using an ER diagram. A Python ORM script is provided to generate and populate the database with realistic, normalized data. Additionally, a Dockerized PostgreSQL environment ensures easy setup and demonstration. The project also includes a Poetry environment for managing dependencies and running Python scripts like `models.py` and `simulate_data.py`.
 
 ## ER Diagram
 
@@ -34,6 +34,7 @@ To run this project locally, you'll need the following:
 - **Python** (for ORM scripting and data generation)
 - **PostgreSQL** (as the database engine)
 - **Docker** (for setting up a containerized environment)
+- **Poetry** (for managing Python dependencies and environment)
 - **DBeaver** or any other PostgreSQL database management tool (optional, for database visualization)
 
 ### Project Setup
@@ -66,17 +67,61 @@ To run this project locally, you'll need the following:
    POSTGRES_PORT=5432
    ```
 
+4. **Poetry Environment Setup**  
+   This project uses **Poetry** for managing dependencies and running the Python scripts. Ensure you have Poetry installed on your machine.
 
-4. **Create Physical Tables**  
-   Once the PostgreSQL container is running, the physical tables can be created using the SQL file `tables.sql`.  
-   You can run the SQL commands inside DBeaver or any PostgreSQL client:
-
-   ```sql
-   \i sql/tables.sql
+   To install the dependencies, run:
+   ```bash
+   poetry install
    ```
 
-   This will create all the necessary tables, including **USERS**, **COURSE**, **QUIZ**, **QUESTION**, **OPTION**, **RESULT**, **RESPONSE**, **TAG**, and **QUIZ_TAG**.
+   This will create a virtual environment and install all necessary packages, including SQLAlchemy, Faker, and Psycopg2. The `pyproject.toml` and `poetry.lock` files define all required dependencies for the project.
 
+5. **Activating the Poetry Environment**  
+   To activate the Poetry environment and run Python scripts, use the following command:
+   ```bash
+   poetry shell
+   ```
 
-5. **.gitignore**  
+6. **Database Initialization Options**  
+   There are two ways to create the tables in the PostgreSQL database:
+
+   - **Using Python ORM**:  
+     The `models.py` file contains the SQLAlchemy ORM definitions for the database. This script can automatically create tables and simulate data.
+     Run the following command within the Poetry environment to create the tables using ORM:
+     ```bash
+     python models.py
+     ```
+     This is the recommended method, as it can also be integrated with the data simulation script.
+
+   - **Using SQL Script (Manual Option)**:  
+     Alternatively, you can use the `tables.sql` file to create the tables manually if needed. This option can be useful for visualizing the physical schema or for users who prefer SQL scripts.
+
+     Run the following command inside a PostgreSQL client like DBeaver:
+     ```sql
+     \i sql/tables.sql
+     ```
+
+7. **Simulate Data**  
+   The `simulate_data.py` script is designed to generate realistic, normalized data for testing purposes. It uses Faker and SQLAlchemy to populate the database with users, courses, quizzes, questions, and responses.
+
+   To simulate data, run the following command within the Poetry environment:
+   ```bash
+   python simulate_data.py
+   ```
+   This script will populate the database with data for users, courses, quizzes, questions, options, and results.
+
+8. **.gitignore**  
    The `.gitignore` file includes rules to ignore sensitive files like `.env`, Python cache files, and Docker data:
+
+   ```
+   .env
+   __pycache__/
+   *.pyc
+   .pytest_cache/
+   db_data/
+   ```
+
+## Demonstration
+
+After setting up the Docker container and running the ORM or SQL script to create the tables, you can use a tool like DBeaver to connect to the PostgreSQL database and visualize the data. You can also query the tables directly to verify that the data model is functioning as expected.
