@@ -1,3 +1,4 @@
+import random
 from sqlalchemy.orm import sessionmaker
 from faker import Faker
 from models import User, Course, Quiz, Question, Option, Tag, quiz_tag, Result, Response, engine
@@ -40,19 +41,20 @@ def seed_courses(users, num_courses=5):
     return courses
 
 # Seed Quizzes
-def seed_quizzes(courses, users, num_quizzes=5):
+def seed_quizzes(courses, users, quizzes_per_course=3):
     quizzes = []
-    for _ in range(num_quizzes):
-        quiz = Quiz(
-            quiz_name=fake.catch_phrase(),
-            description=fake.text(),
-            course_id=fake.random_element(courses).id,
-            created_by=fake.random_element(users).id,
-            start_time=fake.date_time_this_year(),
-            end_time=fake.date_time_this_year()
-        )
-        quizzes.append(quiz)
-        session.add(quiz)
+    for course in courses:
+        for _ in range(quizzes_per_course):
+            quiz = Quiz(
+                quiz_name=fake.catch_phrase(),
+                description=fake.text(),
+                course_id=course.id,
+                created_by=fake.random_element(users).id,
+                start_time=fake.date_time_this_year(),
+                end_time=fake.date_time_this_year()
+            )
+            quizzes.append(quiz)
+            session.add(quiz)
     session.commit()
     return quizzes
 
@@ -71,19 +73,21 @@ def seed_tags(num_tags=5):
 # Seed Quiz Tags (Many-to-Many)
 def seed_quiz_tags(quizzes, tags):
     for quiz in quizzes:
-        for _ in range(fake.random_int(min=1, max=3)):
+        num_tags_to_assign = fake.random_int(min=1, max=3)  # Ensure each quiz has 1 to 3 tags
+        assigned_tags = random.sample(tags, num_tags_to_assign)
+        for tag in assigned_tags:
             stmt = insert(quiz_tag).values(
                 quiz_id=quiz.id,
-                tag_id=fake.random_element(tags).id
+                tag_id=tag.id
             )
             session.execute(stmt)
     session.commit()
 
 # Seed Questions
-def seed_questions(quizzes, num_questions=5):
+def seed_questions(quizzes, questions_per_quiz=5):
     questions = []
     for quiz in quizzes:
-        for _ in range(num_questions):
+        for _ in range(questions_per_quiz):
             question = Question(
                 question_text=fake.sentence(),
                 question_type=fake.random_element(elements=('multiple_choice', 'true_false')),
@@ -108,11 +112,12 @@ def seed_options(questions):
             session.add(option)
     session.commit()
 
-# Seed Results
+# Seed Results (Ensure all users attempt at least one quiz)
 def seed_results(users, quizzes):
     results = []
     for user in users:
-        for quiz in quizzes:
+        attempted_quizzes = random.sample(quizzes, random.randint(1, len(quizzes)//2))  # Randomly assign quizzes to users
+        for quiz in attempted_quizzes:
             result = Result(
                 user_id=user.id,
                 quiz_id=quiz.id,
@@ -123,10 +128,11 @@ def seed_results(users, quizzes):
             session.add(result)
     session.commit()
 
-# Seed Responses
+# Seed Responses (Users' answers to quiz questions)
 def seed_responses(users, questions, options):
     for user in users:
-        for question in questions:
+        answered_questions = random.sample(questions, random.randint(1, len(questions)//2))  # Each user answers some questions
+        for question in answered_questions:
             response = Response(
                 user_id=user.id,
                 question_id=question.id,
@@ -141,28 +147,28 @@ def main_seeding():
     # Step 1: Seed Users
     users = seed_users()
 
-    # Step 2: Seed Courses
+    # Step 2: Seed Courses (Ensure all courses have quizzes)
     courses = seed_courses(users)
 
-    # Step 3: Seed Quizzes
+    # Step 3: Seed Quizzes (Ensure all quizzes belong to courses)
     quizzes = seed_quizzes(courses, users)
 
     # Step 4: Seed Tags
     tags = seed_tags()
 
-    # Step 5: Seed Quiz Tags (Many-to-Many relation between Quizzes and Tags)
+    # Step 5: Seed Quiz Tags (Ensure quizzes have tags)
     seed_quiz_tags(quizzes, tags)
 
-    # Step 6: Seed Questions for Quizzes
+    # Step 6: Seed Questions (Ensure all quizzes have questions)
     questions = seed_questions(quizzes)
 
-    # Step 7: Seed Options for Questions
+    # Step 7: Seed Options (Ensure all questions have options)
     seed_options(questions)
 
-    # Step 8: Seed Results for Users' Quiz attempts
+    # Step 8: Seed Results (Ensure all users have results)
     seed_results(users, quizzes)
 
-    # Step 9: Seed Responses (Users' answers to quiz questions)
+    # Step 9: Seed Responses (Ensure users' quiz answers are recorded)
     seed_responses(users, questions, session.query(Option).all())
 
     print("Seeding completed successfully!")
