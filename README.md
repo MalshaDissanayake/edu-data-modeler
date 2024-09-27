@@ -1,7 +1,7 @@
- # Education App Data Model
+# Education App Data Model
 
 ## Project Overview
-This project involves creating and simulating a data model for an education app that handles users, courses, quizzes, questions, and results. The model is designed and implemented in PostgreSQL using an ER diagram. A Python ORM script is provided to generate and populate the database with realistic, normalized data. Additionally, a Dockerized PostgreSQL environment ensures easy setup and demonstration. The project also includes a Poetry environment for managing dependencies and running Python scripts like `models.py` and `simulate_data.py`.
+This project involves creating and simulating a data model for an education app that handles users, courses, quizzes, questions, and results. The model is designed and implemented in PostgreSQL using an ER diagram. A Python ORM script is provided to generate and populate the database with realistic, normalized data. Additionally, a Dockerized PostgreSQL environment ensures easy setup and demonstration. The project also includes a Poetry environment for managing dependencies and running Python scripts like `models.py` and `simulate_data.py`. To ensure data integrity, a new SQL script `data_verification.sql` is added to verify the correctness of the simulated data.
 
 ## ER Diagram
 
@@ -27,6 +27,29 @@ The diagram outlines the relationships between the major entities in the educati
 - **RESULT** tracks the scores of users who take quizzes, while **RESPONSE** records their answers to individual questions.
 - **QUIZ_TAG** links quizzes with tags to categorize them into different topics.
 
+## File Structure
+
+The directory structure for this project is as follows:
+
+```
+.
+├── docker-compose.yml
+├── .gitignore
+├── poetry.lock
+├── pyproject.toml
+├── sql
+│   ├── tables.sql
+│   └── data_verification.sql
+└── src
+    ├── models.py
+    └── simulate_data.py
+```
+
+- `src/models.py`: Contains the SQLAlchemy ORM model definitions and logic to create tables in the database.
+- `src/simulate_data.py`: Script to generate and populate the database with simulated data.
+- `sql/tables.sql`: SQL script to manually create tables in the database.
+- `sql/data_verification.sql`: SQL script to verify that the simulated data is correct and not skewed.
+
 ## Getting Started
 
 ### Prerequisites
@@ -42,21 +65,11 @@ To run this project locally, you'll need the following:
 1. **Clone the Repository**  
    Clone this repository to your local machine:
    ```bash
-   git clone https://github.com/your-username/edu-app-data-model.git
-   cd edu-app-data-model
+   git clone https://github.com/org-datafella/edu-data-modeler.git
+   cd edu-data-modeler
    ```
 
-2. **Docker Setup**  
-   A `docker-compose.yml` file is included to easily set up a PostgreSQL container.
-
-   Run the following command to start the container:
-   ```bash
-   docker-compose up -d
-   ```
-
-   This will create a PostgreSQL container named `education_app_db`.
-
-3. **Environment Variables**  
+2. **Environment Variables**  
    Ensure you have a `.env` file in the project root that contains the following sensitive credentials:
 
    ```
@@ -66,6 +79,16 @@ To run this project locally, you'll need the following:
    POSTGRES_HOST=localhost
    POSTGRES_PORT=5432
    ```
+
+3. **Docker Setup**  
+   A `docker-compose.yml` file is included to easily set up a PostgreSQL container.
+
+   Run the following command to start the container:
+   ```bash
+   docker-compose up -d
+   ```
+
+   This will create a PostgreSQL container named `education_app_db`.
 
 4. **Poetry Environment Setup**  
    This project uses **Poetry** for managing dependencies and running the Python scripts. Ensure you have Poetry installed on your machine.
@@ -87,15 +110,15 @@ To run this project locally, you'll need the following:
    There are two ways to create the tables in the PostgreSQL database:
 
    - **Using Python ORM**:  
-     The `models.py` file contains the SQLAlchemy ORM definitions for the database. This script can automatically create tables and simulate data.
+     The `src/models.py` file contains the SQLAlchemy ORM definitions for the database. This script can automatically create tables and simulate data.
      Run the following command within the Poetry environment to create the tables using ORM:
      ```bash
-     python models.py
+     poetry run python src/models.py
      ```
      This is the recommended method, as it can also be integrated with the data simulation script.
 
    - **Using SQL Script (Manual Option)**:  
-     Alternatively, you can use the `tables.sql` file to create the tables manually if needed. This option can be useful for visualizing the physical schema or for users who prefer SQL scripts.
+     Alternatively, you can use the `sql/tables.sql` file to create the tables manually if needed. This option can be useful for visualizing the physical schema or for users who prefer SQL scripts.
 
      Run the following command inside a PostgreSQL client like DBeaver:
      ```sql
@@ -103,15 +126,25 @@ To run this project locally, you'll need the following:
      ```
 
 7. **Simulate Data**  
-   The `simulate_data.py` script is designed to generate realistic, normalized data for testing purposes. It uses Faker and SQLAlchemy to populate the database with users, courses, quizzes, questions, and responses.
+   The `src/simulate_data.py` script is designed to generate realistic, normalized data for testing purposes. It uses Faker and SQLAlchemy to populate the database with users, courses, quizzes, questions, and responses.
 
    To simulate data, run the following command within the Poetry environment:
    ```bash
-   python simulate_data.py
+   poetry run python src/simulate_data.py
    ```
    This script will populate the database with data for users, courses, quizzes, questions, options, and results.
 
-8. **.gitignore**  
+8. **Verify Data Integrity**  
+   After populating the database with simulated data, you can verify that the data is correct and not skewed using the `sql/data_verification.sql` script. This script runs a series of queries to check the distribution and integrity of the data.
+
+   To run the data verification queries, connect to your PostgreSQL database (e.g., using DBeaver or the psql CLI) and execute the script:
+   ```sql
+   \i sql/data_verification.sql
+   ```
+
+   This will generate reports verifying data correctness and helping to ensure that the simulated data represents a balanced dataset.
+
+9. **.gitignore**  
    The `.gitignore` file includes rules to ignore sensitive files like `.env`, Python cache files, and Docker data:
 
    ```
